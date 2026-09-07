@@ -168,10 +168,11 @@ class KeyboardInputWindow: TransparentWindow {
 
         let elements = Accessibility
           .getAccessibleElementsForFocusedWindow(of: app)
-        // Because Scoot places labels vertically, horizontal congestion is
-        // less of an issue in practice. For this reason, add padding in the y
-        // direction only (`paddingY`).
-          .reducingCrowding(intersectionThreshold: 0.1, paddingX: 0.0, paddingY: 10.0)
+        // Upstream pads 10pt vertically so stacked toolbar items don't get
+        // unreadable labels. On any grid of buttons (ZMK Studio's keyboard
+        // picture) that culls one of every vertical neighbour pair — a
+        // checkerboard of hints. No padding: only real overlap gets culled.
+          .reducingCrowding(intersectionThreshold: 0.1, paddingX: 0.0, paddingY: 0.0)
 
         var data = [(elements: [Accessibility.Element], screenRects: [CGRect])]()
 
