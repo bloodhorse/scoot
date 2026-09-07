@@ -213,12 +213,17 @@ class KeyboardInputWindow: TransparentWindow {
 
     func determineAvailableKeys(numCandidates: Int) -> [Character] {
 
+        // Gallium (bekh's Karabiner layout), not QWERTY. Same physical tiers
+        // as upstream — home row minus the inner columns first, inner columns
+        // second, then the top row, then the bottom — transposed to what those
+        // positions actually type. Upstream's letters land all over the board
+        // on this layout. `nrtshaei` also matches the Vimium C hint alphabet.
         let keys: [[Character]] = [
-            ["a", "s", "d", "f", "j", "k", "l"],
-            ["g", "h"],
-            ["q", "w", "e", "r", "u", "i", "o", "p"],
-            ["t", "y"],
-            ["z", "x", "c", "v", "b", "n", "m"],
+            ["n", "r", "t", "s", "h", "a", "e", "i"],
+            ["g", "p"],
+            ["b", "l", "d", "c", "y", "o", "u"],
+            ["v", "j"],
+            ["x", "q", "m", "w", "z", "k", "f"],
         ]
 
         let selectedKeys: [Character]

@@ -139,7 +139,18 @@ struct Accessibility {
             return elements
         }
 
-        func traverse(node: UIElement) {
+        // Deep or cyclic AX trees (web-tech apps: Chromium, Electron, Tauri)
+        // used to overflow the main thread's stack — 511 recursive frames and
+        // a SIGSEGV. Real UI never nests this deep; anything past the cap is a
+        // loop or garbage, and we'd rather miss a hint than die.
+        let maxDepth = 64
+        var visited = Set<AXUIElement>()   // AXUIElement is a CF type: Hashable via CFHash; UIElement isn't
+
+        func traverse(node: UIElement, depth: Int = 0) {
+            guard depth < maxDepth, visited.insert(node.element).inserted else {
+                return
+            }
+
             guard let children: [UIElement] = try? node.arrayAttribute(.children) else {
                 return
             }
@@ -195,7 +206,7 @@ struct Accessibility {
                     }
                 }
 
-                traverse(node: child)
+                traverse(node: child, depth: depth + 1)
             }
 
         }
