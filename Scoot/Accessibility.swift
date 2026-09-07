@@ -201,6 +201,16 @@ struct Accessibility {
                     switch role {
                     case .cell, .button, .radioButton, .link, .checkBox, .slider, .popUpButton, .menuButton, .incrementor, .handle:
                         addElement()
+                    case .staticText, .image:
+                        // Web views hang click handlers on plain text and
+                        // images (ZMK Studio's layer list, its footer links)
+                        // and WebKit says so by advertising AXPress. Role
+                        // alone misses every one of them. Only leaf-ish roles:
+                        // WebKit also reports AXPress on the enclosing groups
+                        // and lists, which would drown the real targets.
+                        if let actions = try? child.actions(), actions.contains(.press) {
+                            addElement()
+                        }
                     default:
                         break
                     }
