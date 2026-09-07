@@ -46,8 +46,25 @@ extension KeyboardInputWindow {
             if let nextNode = (currentNode ?? tree.root).step(by: character) {
                 if nextNode.isLeaf , let rect = nextNode.value {
                     mouse.move(to: CGPoint(x: rect.midX, y: rect.midY))
-                    flashFeedback(at: rect, duration: 1.4)
                     currentNode = nil
+
+                    // Element mode: the label *is* the click, like Vimium's
+                    // `f`. Upstream only parks the cursor and waits for ↵ —
+                    // one keystroke too many on every single hit. Grid and
+                    // freestyle keep the park-then-act behaviour: there the
+                    // point is placing the cursor, not pressing something.
+                    // Same sequence as the ↵ handler below: hide first so the
+                    // target window regains focus before the click (#28), and
+                    // a beat for the posted move to land before we read the
+                    // cursor position back for the click.
+                    if activeJumpMode == .element {
+                        appDelegate?.bringToBackground()
+                        usleep(10000)
+                        mouse.click(button: .left)
+                        return
+                    }
+
+                    flashFeedback(at: rect, duration: 1.4)
                     return
                 }
                 self.currentNode = nextNode
