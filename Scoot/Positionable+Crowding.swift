@@ -30,7 +30,7 @@ extension Array where Element: Positionable, Element: Equatable {
     /// - Parameter paddingY: the number of pixels to increase the height of an
     ///   element's frame by, when testing to see if the padded frame intersects
     ///   with another element.
-    func reducingCrowding(intersectionThreshold: CGFloat = 0.1, paddingX: CGFloat = 0, paddingY: CGFloat = 0) -> [Element] {
+    func reducingCrowding(intersectionThreshold: CGFloat = 0.1, containedAreaThreshold: CGFloat = 0.7, paddingX: CGFloat = 0, paddingY: CGFloat = 0) -> [Element] {
 
         var discard = [Element]()
 
@@ -57,6 +57,11 @@ extension Array where Element: Positionable, Element: Equatable {
                 let paddedFramesIntersect = candidate.frame.insetBy(dx: -paddingX, dy: -paddingY).intersects(accumulated.frame)
 
                 if percentageOverlapping == 1 {
+                    let smaller = Swift.min(candidate.frame.area, accumulated.frame.area)
+                    let larger = Swift.max(candidate.frame.area, accumulated.frame.area)
+                    if larger > 0 && smaller / larger < containedAreaThreshold {
+                        return false
+                    }
                     // To reduce crowding, only one element is kept (either the
                     // candidate, or the accumulated). In this case, where the
                     // elements fully overlap, we choose to keep the element
